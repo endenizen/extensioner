@@ -1,6 +1,6 @@
 {
   "name": "Extensioner",
-  "version": "1.0.3.2",
+  "version": "1.0.3.3",
   "description": "Extension management is easier with Extensioner.",
   "browser_action": {
     "default_icon": "puzzle_48.png",
