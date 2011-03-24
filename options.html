@@ -1,0 +1,33 @@
+<html>
+<head><title>Extensioner</title></head>
+<link rel="stylesheet" type="text/css" href="extensioner.css" />
+<script type="text/javascript" src="jquery.min.js"></script>
+<script type="text/javascript" src="jquery-ui.min.js"></script>
+<script type="text/javascript" src="extensioner.js"></script>
+
+<body class="options">
+  <div id="nav">
+    <h1>Extensioner</h1>
+    <button id="save_button">Save Changes</button>
+    <div id="create_holder">
+      <input type="text" id="new_group" /><button id="create_button">Create new group</button>
+    </div>
+  </div>
+
+  <div id="status"></div>
+  
+  <div id="main" class="clearfix">
+    <div id="left_column">
+      <h2>Your Extensions</h2>
+      <ul id="all_extensions" class="extension_list">
+      </ul>
+    </div>
+
+    <div id="right_column">
+      <h2>Your Extensioner Groups</h2>
+      <div id="groups">
+      </div>
+    </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,13 @@
+{
+  "name": "Extensioner",
+  "version": "1.0.3.2",
+  "description": "Extension management is easier with Extensioner.",
+  "browser_action": {
+    "default_icon": "puzzle.png",
+    "default_popup": "popup.html"
+  },
+  "options_page": "options.html",
+  "permissions": [
+    "management"
+  ]
+}
