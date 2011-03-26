@@ -11,6 +11,9 @@
         if(this.isApp) return;
         enabledExtensions[this.id] = this.enabled;
       });
+      if(!localStorage.extensionerGroups) {
+        return;
+      }
       var groups = JSON.parse(localStorage.extensionerGroups);
       var domGroups = $('#popup_groups');
       $.each(groups, function() {
