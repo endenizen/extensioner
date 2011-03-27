@@ -1,0 +1,12 @@
+Install the extension from the Chrome Web Store:
+
+https://chrome.google.com/webstore/detail/pmbfkcgplcmlmoccjbcgmopkbefndhpd
+
+If you want to try the code from source, download a zip, extract it, then in chrome:
+
+1. Go to the url: chrome://extensions
+2. Turn on "Developer mode" by clicking the link in the upper-right
+3. Click "Load unpacked extension..."
+4. Select the directory you just extracted above
+
+Feel free to add features and submit pull requests.
