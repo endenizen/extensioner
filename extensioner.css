@@ -152,8 +152,12 @@ ul {
 
 /* popups */
 
+body.popup {
+  width: 300px;
+}
+
 #popup_groups {
-  margin: 0;
+  margin: 0 0 5px 0;
   padding: 0;
   width: 300px;
   list-style-type: none;
@@ -184,4 +188,12 @@ ul {
 
 #popup_groups li.disabled:hover {
   background: rgba(150,0,0,0.3);
+}
+
+#setup_link {
+  text-align: center;
+}
+
+#popup_welcome {
+  text-align: center;
 }

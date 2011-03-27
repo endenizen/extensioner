@@ -12,10 +12,11 @@
         enabledExtensions[this.id] = this.enabled;
       });
       if(!localStorage.extensionerGroups) {
+        $('#popup_welcome').show();
         return;
       }
       var groups = JSON.parse(localStorage.extensionerGroups);
-      var domGroups = $('#popup_groups');
+      var domGroups = $('#popup_groups').show();
       $.each(groups, function() {
         var newGroup = $('<li></li>');
         newGroup.text(this.name);
@@ -44,9 +45,12 @@
       });
     }
     chrome.management.getAll(setupGroups);
+    $('#setup_link a').attr('href', chrome.extension.getURL('options.html'));
   });
 </script>
 <body class="popup">
-  <ul id="popup_groups"></ul>
+  <ul id="popup_groups" style="display:none;"></ul>
+  <h1 id="popup_welcome" style="display:none;">Welcome to Extensioner!</h1>
+  <div id="setup_link"><a target="_blank" href="#">Setup</a></div>
 </body>
 </html>
