@@ -1,5 +1,6 @@
 var groups;
 var extensions;
+var options;
 
 /* Return groups from localStorage or [] */
 function loadGroups() {
@@ -18,9 +19,31 @@ function loadGroups() {
   return myGroups;
 }
 
+/* load extra options (like autosave) */
+function loadOptions() {
+  var optionStorage = localStorage.extensionerOptions;
+  var myOptions = {};
+  if(optionStorage) {
+    try {
+      myOptions = JSON.parse(optionStorage);
+    } catch(e) {
+      myOptions = {};
+    }
+  }
+  if(!myOptions) {
+    myOptions = {};
+  }
+  return myOptions;
+}
+
 /* Stringify and save group list */
 function saveGroups(newGroups) {
   localStorage['extensionerGroups'] = JSON.stringify(groups);
+}
+
+/* Stringify and save extra options */
+function saveOptions(newOptions) {
+  localStorage['extensionerOptions'] = JSON.stringify(newOptions);
 }
 
 function save() {
@@ -39,8 +62,17 @@ function save() {
   });
   saveGroups(groups);
 
-  // Update status to let user know options were saved.
-  showStatus('Changes saved.');
+  var autosaveEnabled = $('#autosave').attr('checked');
+  options = {
+    autosave: autosaveEnabled
+  };
+  saveOptions(options);
+
+  // only show notification if we're not autosaving
+  if(!options.autosave) {
+    // Update status to let user know options were saved.
+    showStatus('Changes saved.');
+  }
 }
 
 function showStatus(msg, error) {
@@ -63,6 +95,11 @@ function showStatus(msg, error) {
 
 function load() {
   groups = loadGroups();
+  options = loadOptions();
+  if(options.autosave) {
+    $('#save_button').hide();
+    $('#autosave').attr('checked', true);
+  }
   chrome.management.getAll(populateExtensions);
 }
 
@@ -85,7 +122,13 @@ function populateExtensions(extensionList) {
   $.each(groups, function() {
     setupGroup(this);
   });
-  domGroups.sortable();
+  domGroups.sortable({
+    stop: function() {
+      if(options.autosave) {
+        save();
+      }
+    }
+  });
 }
 
 function setupItem(item) {
@@ -100,6 +143,9 @@ function setupItem(item) {
         place.fadeIn('fast');
       }
       par.remove();
+      if(options.autosave) {
+        save();
+      }
     });
   }).hover(function() {
     $(this).parent().addClass('hover');
@@ -118,6 +164,9 @@ function setupGroup(group) {
     if(confirm('Are you sure you want to delete the group "' + myName + '"?')) {
       $(this).parent().parent().slideUp(function() {
         $(this).remove();
+        if(options.autosave) {
+          save();
+        }
       });
     }
   });
@@ -154,9 +203,17 @@ function setupGroup(group) {
       $(this).find('.placeholder').remove();
       var newItem = setupItem({id: $(ui.draggable).data('id'), name: $(ui.draggable).text()});
       $(this).find('ul').append(newItem);
+      if(options.autosave) {
+        save();
+      }
     }
   }).find('ul').sortable({
-    revert: true
+    revert: true,
+    stop: function() {
+      if(options.autosave) {
+        save();
+      }
+    }
   });
 }
 
@@ -184,6 +241,10 @@ function createGroup() {
   groups.push(newGroup);
 
   $('#new_group').val('');
+
+  if(options.autosave) {
+    save();
+  }
 }
 
 /* Tell Chrome to enable/disable a list of extensions */
@@ -196,6 +257,20 @@ function enableExtensions(extensionList, enable) {
 /* Called from the options.html onload event */
 function setupOptionsPage() {
   load();
+
+  $('#autosave').change(function() {
+    options['autosave'] = $(this).attr('checked');
+    
+    // if this is checked, do our first autosave here
+    if(options.autosave) {
+      $('#save_button').hide();
+      save();
+    } else {
+      // if it was unchecked, only save the options (not the groups)
+      $('#save_button').show();
+      saveOptions(options);
+    }
+  });
 
   $('#save_button').click(function() {
     save();

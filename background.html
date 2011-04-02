@@ -27,7 +27,7 @@
           content: groups[a].name,
           description: description
         });
-        if(groups[a].name.toLowerCase() == text.toLowerCase()) {
+        if(groups[a].name == text) {
           chrome.omnibox.setDefaultSuggestion({description:(enable ? 'Enable' : 'Disable') + ' group %s'});
         } else {
           chrome.omnibox.setDefaultSuggestion({description:'Enter a group name'});
