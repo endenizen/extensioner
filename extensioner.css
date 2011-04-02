@@ -51,6 +51,13 @@ ul {
 
 .extension_list li {
   margin: 2px 0;
+  cursor: pointer;
+  padding: 3px;
+}
+
+.extension_list li:hover {
+  background: #eee;
+  -webkit-box-shadow: -1px 1px 3px rgba(0,0,0,0.5);
 }
 
 #status {
@@ -96,6 +103,10 @@ ul {
   width: 49%;
 }
 
+#left_column ul {
+  float: left;
+}
+
 #right_column {
   float: right;
   width: 49%;
@@ -110,11 +121,10 @@ ul {
 }
 
 .group_holder {
-  border: 5px solid rgba(200, 200, 200, 1);
-  border-radius: 10px;
+  background: #eee;
   padding: 10px;
-  margin-bottom: 10px;
-  box-shadow: 0 0 5px rgba(200, 100, 100, 0.5);
+  margin-bottom: 20px;
+  box-shadow: -1px 1px 3px rgba(0, 0, 0, 0.5);
 }
 
 .group_holder h2 {
@@ -129,6 +139,15 @@ ul {
 .group_holder ul li .remove {
   float: right;
   cursor: pointer;
+  display: none;
+}
+
+.group_holder h2:hover .delete {
+  display: block;
+}
+
+.group_holder ul li:hover .remove {
+  display: block;
 }
 
 .group_holder ul li.hover {
