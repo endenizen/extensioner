@@ -1,0 +1,42 @@
+<script src="jquery.min.js"></script>
+<script src="extensioner.js"></script>
+<script>
+  chrome.omnibox.setDefaultSuggestion({description:'Enter a group name'});
+  chrome.omnibox.onInputChanged.addListener(function(text, cb) {
+    chrome.management.getAll(function(extensionList) {
+      getResults(extensionList, text, cb);
+    });
+  });
+  chrome.omnibox.onInputEntered.addListener(function(text) {
+    for(var a = 0; a < groups.length; a++) {
+      if(groups[a].name == text) {
+        enableExtensions(groups[a].extensions, groupExtCount[groups[a].name] == 0);
+        return;
+      }
+    }
+  });
+  var groupExtCount = {};
+  var groups = [];
+  function getResults(extensionList, text, cb) {
+    groups = loadGroups();
+    var result = [];
+    groupExtCount = enabledExtensionsForGroups(groups, extensionList);
+    for(var a = 0; a < groups.length; a++) {
+      if(groups[a].name.toLowerCase().indexOf(text.toLowerCase()) >= 0) {
+        var description = groups[a].name.replace(text, '<match>' + text + '</match>');
+        var enable = groupExtCount[groups[a].name] == 0;
+        description += ' <dim>' + (enable ? 'enable' : 'disable') + ' group</dim>';
+        result.push({
+          content: groups[a].name,
+          description: description
+        });
+        if(groups[a].name.toLowerCase() == text.toLowerCase()) {
+          chrome.omnibox.setDefaultSuggestion({description:(enable ? 'Enable' : 'Disable') + ' group %s'});
+        } else {
+          chrome.omnibox.setDefaultSuggestion({description:'Enter a group name'});
+        }
+      }
+    }
+    cb(result);
+  }
+</script>

@@ -1,54 +1,9 @@
 <html>
 <head></head>
 <link rel="stylesheet" type="text/css" href="extensioner.css" />
-<script type="text/javascript" src="jquery.min.js"></script>
-<script type="text/javascript">
-  $(document).ready(function() {
-    // load groups
-    function setupGroups(extensionList) {
-      var enabledExtensions = {};
-      $.each(extensionList, function() {
-        if(this.isApp) return;
-        enabledExtensions[this.id] = this.enabled;
-      });
-      if(!localStorage.extensionerGroups) {
-        $('#popup_welcome').show();
-        return;
-      }
-      var groups = JSON.parse(localStorage.extensionerGroups);
-      var domGroups = $('#popup_groups').show();
-      $.each(groups, function() {
-        var newGroup = $('<li></li>');
-        newGroup.text(this.name);
-        newGroup.data('extensions', this.extensions);
-        var count = 0;
-        $.each(this.extensions, function() {
-          if(enabledExtensions[this]) {
-            count++;
-          }
-        });
-        if(count == this.extensions.length) {
-          newGroup.addClass('enabled');
-        } else if(count == 0) {
-          newGroup.addClass('disabled');
-        } else {
-          newGroup.addClass('partial');
-        }
-        newGroup.click(function() {
-          var enable = !$(this).hasClass('enabled');
-          $.each($(this).data('extensions'), function() {
-            chrome.management.setEnabled(""+this, enable);
-          });
-          $(this).removeClass('enabled disabled partial').addClass(enable ? 'enabled' : 'disabled');
-        });
-        domGroups.append(newGroup);
-      });
-    }
-    chrome.management.getAll(setupGroups);
-    $('#setup_link a').attr('href', chrome.extension.getURL('options.html'));
-  });
-</script>
-<body class="popup">
+<script src="jquery.min.js"></script>
+<script src="extensioner.js"></script>
+<body class="popup" onload="setupPopupPage()">
   <ul id="popup_groups" style="display:none;"></ul>
   <h1 id="popup_welcome" style="display:none;">Welcome to Extensioner!</h1>
   <div id="setup_link"><a target="_blank" href="#">Setup</a></div>

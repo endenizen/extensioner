@@ -1,7 +1,28 @@
 var groups;
 var extensions;
 
-// Saves options to localStorage.
+/* Return groups from localStorage or [] */
+function loadGroups() {
+  var groupStorage = localStorage.extensionerGroups;
+  var myGroups = [];
+  if(groupStorage) {
+    try {
+      myGroups = JSON.parse(groupStorage);
+    } catch(e) {
+      myGroups = [];
+    }
+  }
+  if(!myGroups) {
+    myGroups = [];
+  }
+  return myGroups;
+}
+
+/* Stringify and save group list */
+function saveGroups(newGroups) {
+  localStorage['extensionerGroups'] = JSON.stringify(groups);
+}
+
 function save() {
   var domGroups = $('#groups');
   groups = [];
@@ -16,7 +37,7 @@ function save() {
     });
     groups.push(newGroup);
   });
-  localStorage['extensionerGroups'] = JSON.stringify(groups);
+  saveGroups(groups);
 
   // Update status to let user know options were saved.
   showStatus('Changes saved.');
@@ -40,15 +61,8 @@ function showStatus(msg, error) {
   });
 }
 
-// Restores select box state to saved value from localStorage.
 function load() {
-  var groupStorage = localStorage.extensionerGroups;
-  if(groupStorage) {
-    groups = JSON.parse(groupStorage);
-  }
-  if(!groups) {
-    groups = [];
-  }
+  groups = loadGroups();
   chrome.management.getAll(populateExtensions);
 }
 
@@ -172,7 +186,15 @@ function createGroup() {
   $('#new_group').val('');
 }
 
-$(document).ready(function() {
+/* Tell Chrome to enable/disable a list of extensions */
+function enableExtensions(extensionList, enable) {
+  $.each(extensionList, function() {
+    chrome.management.setEnabled(""+this, enable);
+  });
+}
+
+/* Called from the options.html onload event */
+function setupOptionsPage() {
   load();
 
   $('#save_button').click(function() {
@@ -190,4 +212,58 @@ $(document).ready(function() {
       $('#create_button').click();
     }
   });
-});
+}
+
+/* Creates hash of counts for each groups enabled extensions. Assists with
+ * figuring out whether a certain group is enabled or disabled */
+function enabledExtensionsForGroups(groups, extensionList) {
+  var groupCounts = {};
+  var enabledExtensions = {};
+  $.each(extensionList, function() {
+    if(this.isApp) return;
+    enabledExtensions[this.id] = this.enabled;
+  });
+  $.each(groups, function() {
+    var count = 0;
+    $.each(this.extensions, function() {
+      if(enabledExtensions[this]) {
+        count++;
+      }
+    });
+    groupCounts[this.name] = count;
+  });
+  return groupCounts;
+}
+
+/* Called from the popup.html onload event */
+function setupPopupPage() {
+  function setupGroups(extensionList) {
+    var groups = loadGroups();
+    var groupExtCount = enabledExtensionsForGroups(groups, extensionList);
+    if(groups.length == 0) {
+      $('#popup_welcome').show();
+      return;
+    }
+    var domGroups = $('#popup_groups').show();
+    $.each(groups, function() {
+      var newGroup = $('<li></li>');
+      newGroup.text(this.name);
+      newGroup.data('extensions', this.extensions);
+      if(groupExtCount[this.name] == this.extensions.length) {
+        newGroup.addClass('enabled');
+      } else if(groupExtCount[this.name] == 0) {
+        newGroup.addClass('disabled');
+      } else {
+        newGroup.addClass('partial');
+      }
+      newGroup.click(function() {
+        var enable = !$(this).hasClass('enabled');
+        enableExtensions($(this).data('extensions'), enable);
+        $(this).removeClass('enabled disabled partial').addClass(enable ? 'enabled' : 'disabled');
+      });
+      domGroups.append(newGroup);
+    });
+  }
+  chrome.management.getAll(setupGroups);
+  $('#setup_link a').attr('href', chrome.extension.getURL('options.html'));
+}

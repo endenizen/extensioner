@@ -1,6 +1,6 @@
 {
   "name": "Extensioner",
-  "version": "1.0.3.3",
+  "version": "1.1",
   "description": "Extension management is easier with Extensioner.",
   "browser_action": {
     "default_icon": "puzzle_48.png",
@@ -14,5 +14,7 @@
     "16": "puzzle_16.png",
     "48": "puzzle_48.png",
     "128": "puzzle_128.png"
-  }
+  },
+  "omnibox": { "keyword" : "exr" },
+  "background_page": "background.html"
 }
