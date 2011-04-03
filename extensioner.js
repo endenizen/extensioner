@@ -333,13 +333,13 @@ function enabledExtensionsForGroups(groups, extensionList) {
 /* Called from the popup.html onload event */
 function setupPopupPage() {
   function setupGroups(extensionList) {
+    var domGroups = $('#popup_groups').show().empty();
     var groups = loadGroups();
     var groupExtCount = enabledExtensionsForGroups(groups, extensionList);
     if(groups.length == 0) {
       $('#popup_welcome').show();
       return;
     }
-    var domGroups = $('#popup_groups').show();
     $.each(groups, function() {
       var newGroup = $('<li></li>');
       newGroup.text(this.name);
@@ -352,9 +352,10 @@ function setupPopupPage() {
         newGroup.addClass('partial');
       }
       newGroup.click(function() {
-        var enable = !$(this).hasClass('enabled');
+        var enable = $(this).hasClass('disabled');
         enableExtensions($(this).data('extensions'), enable);
         $(this).removeClass('enabled disabled partial').addClass(enable ? 'enabled' : 'disabled');
+        setupPopupPage();
       });
       domGroups.append(newGroup);
     });
