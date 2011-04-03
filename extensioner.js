@@ -1,6 +1,7 @@
 var groups;
 var extensions;
 var options;
+var extensionOrder;
 
 /* Return groups from localStorage or [] */
 function loadGroups() {
@@ -63,9 +64,15 @@ function save() {
   saveGroups(groups);
 
   var autosaveEnabled = $('#autosave').attr('checked');
+  var listSort = $('#list_sort').val();
+  var listFilter = $('#list_filter').val();
+
   options = {
-    autosave: autosaveEnabled
+    autosave: autosaveEnabled,
+    sort: listSort,
+    filter: listFilter
   };
+
   saveOptions(options);
 
   // only show notification if we're not autosaving
@@ -100,6 +107,12 @@ function load() {
     $('#save_button').hide();
     $('#autosave').attr('checked', true);
   }
+  if(options.filter) {
+    $('#list_filter').val(options.filter);
+  }
+  if(options.sort) {
+    $('#list_sort').val(options.sort);
+  }
   chrome.management.getAll(populateExtensions);
 }
 
@@ -110,39 +123,33 @@ function populateExtensions(extensionList) {
     if(this.isApp) return;
     var newItem = $('<li></li>').data({
       id: this.id,
-      name: this.name
+      name: this.name,
+      enabled: this.enabled
     });
-    var name = $('<div class="name"></div>').text(this.name);
+    var firstLine = $('<div></div>');
+    var name = $('<span class="name"></span>').text(this.name);
     var version = $('<span class="version"></span>').text(this.version);
     if(!this.enabled) {
       version.text(version.text() + ' (disabled)');
     }
-    name.append(version);
+    firstLine.append(name, version);
     var description = $('<div class="description"></div>').text(this.description);
-    console.log(this);
     /*
     // Extension icons only work for enabled extensions?!
     var icons = this.icons;
     if(icons && icons.length) {
       for(var a = 0; a < icons.length; a++) {
         var image = icons[0].url;
-        console.log('image ', image);
         newItem.prepend($('<img width="16" height="16" />').attr('src', image));
       }
     }
     */
-    newItem.append(name, description);
+    newItem.append(firstLine, description);
     domList.append(newItem);
     extensions[this.id] = this.name;
   });
-  domList.find('li').draggable({
-    helper: function() {
-      return $('<div class="dragging"></div>').text($(this).data('name'));
-    },
-    cursorAt: { top: 10, left: 10 },
-    revert: 'invalid',
-    containment: $('#main')
-  }).disableSelection();
+  setupDraggable();
+  domList.disableSelection();
 
   var domGroups = $('#groups').empty();
   $.each(groups, function() {
@@ -155,6 +162,25 @@ function populateExtensions(extensionList) {
         save();
       }
     }
+  });
+
+  if(options.filter) {
+    refreshFilter(options.filter);
+  }
+
+  if(options.sort) {
+    refreshSort(options.sort);
+  }
+}
+
+function setupDraggable() {
+  $('#all_extensions li').draggable({
+    helper: function() {
+      return $('<div class="dragging"></div>').text($(this).data('name'));
+    },
+    cursorAt: { top: 10, left: 10 },
+    revert: 'invalid',
+    containment: $('#main')
   });
 }
 
@@ -304,6 +330,20 @@ function setupOptionsPage() {
     }
   });
 
+  $('#list_sort').change(function() {
+    var sort = $(this).val();
+    refreshSort(sort);
+    options.sort = sort;
+    saveOptions(options);
+  });
+
+  $('#list_filter').bind('change keyup', function() {
+    var str = $(this).val();
+    refreshFilter(str);
+    options.filter = str;
+    saveOptions(options);
+  });
+
   $('#save_button').click(function() {
     save();
     return false;
@@ -319,6 +359,62 @@ function setupOptionsPage() {
       $('#create_button').click();
     }
   });
+}
+
+function refreshFilter(str) {
+  if(str == '') {
+    $('#all_extensions li').show();
+    $('#list_filter').removeClass('filtered');
+  } else {
+    $('#all_extensions li .name').each(function() {
+      if($(this).text().toLowerCase().indexOf(str.toLowerCase()) === -1) {
+        $(this).parents('li:eq(0)').hide();
+      } else {
+        $(this).parents('li:eq(0)').show();
+      }
+    });
+    $('#list_filter').addClass('filtered');
+  }
+}
+
+function swap(a, b) {
+  var tmp1 = a.clone(true);
+  var tmp2 = b.clone(true);
+  a.replaceWith(tmp2);
+  b.replaceWith(tmp1);
+}
+
+function refreshSort(sort) {
+  var items = $('#all_extensions li');
+  items.draggable('destroy');
+  var smaller = function(a, b) {
+    return $(items[a]).data('name').toLowerCase() < $(items[b]).data('name').toLowerCase();
+  };
+  if(sort == 'enabled') {
+    smaller = function(a, b) {
+      var ena = $(items[a]).data('enabled'), enb = $(items[b]).data('enabled');
+      if(ena == enb) {
+        return $(items[a]).data('name').toLowerCase() < $(items[b]).data('name').toLowerCase();
+      }
+      return $(items[a]).data('enabled') && !$(items[b]).data('enabled');
+    };
+  }
+  var len = items.length;
+  for(var a = 0; a < len; a++) {
+    var items = $('#all_extensions li');
+    var smallest = a;
+    if(a + 1 > len) continue;
+    for(var b = a + 1; b < len; b++) {
+      if(smaller(b, smallest)) {
+        smallest = b;
+      }
+    }
+    if(smallest == a) continue;
+    var one = $(items[a]);
+    var two = $(items[smallest]);
+    swap(one, two);
+  }
+  setupDraggable();
 }
 
 /* Creates hash of counts for each groups enabled extensions. Assists with

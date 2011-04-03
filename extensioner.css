@@ -32,6 +32,14 @@ button:active {
   background: -webkit-gradient(linear,left bottom, left top,from(rgba(255,255,255,0.7)),to(rgba(100,100,100,0.5)),color-stop(0.15, #fff));
 }
 
+input[type=text] {
+  border: 1px solid rgba(50, 50, 50, 0.5);
+  border-radius: 5px;
+  padding: 0 5px;
+  height: 26px;
+  font-size: 12px;
+}
+
 h1 {
   font-size: 15px;
   font-weight: bold;
@@ -121,11 +129,6 @@ ul {
 }
 
 #create_holder input {
-  border: 1px solid rgba(50, 50, 50, 0.5);
-  border-radius: 5px;
-  padding: 0 5px;
-  height: 26px;
-  font-size: 12px;
   width: 200px;
   margin-right: 5px;
 }
@@ -140,6 +143,15 @@ ul {
 
 #left_column ul {
   float: left;
+}
+
+#list_tools {
+  float: right;
+}
+
+#list_filter.filtered {
+  border-color: green;
+  background-color: rgba(0,100,0,.3);
 }
 
 #right_column {
@@ -159,7 +171,7 @@ ul {
   background: #eee;
   padding: 10px;
   margin-bottom: 20px;
-  box-shadow: -1px 1px 3px rgba(0, 0, 0, 0.5);
+  box-shadow: -1px 1px 3px rgba(0,0,0,0.5);
 }
 
 .group_holder h2 {
