@@ -108,8 +108,11 @@ function populateExtensions(extensionList) {
   var domList = $('#all_extensions');
   $.each(extensionList, function() {
     if(this.isApp) return;
-    var newItem = $('<li></li>').data('id', this.id);
-    var name = $('<div></div>').text(this.name);
+    var newItem = $('<li></li>').data({
+      id: this.id,
+      name: this.name
+    });
+    var name = $('<div class="name"></div>').text(this.name);
     var version = $('<span class="version"></span>').text(this.version);
     if(!this.enabled) {
       version.text(version.text() + ' (disabled)');
@@ -133,7 +136,10 @@ function populateExtensions(extensionList) {
     extensions[this.id] = this.name;
   });
   domList.find('li').draggable({
-    helper: 'clone',
+    helper: function() {
+      return $('<div class="dragging"></div>').text($(this).data('name'));
+    },
+    cursorAt: { top: 10, left: 10 },
     revert: 'invalid',
     containment: $('#main')
   }).disableSelection();
@@ -143,6 +149,7 @@ function populateExtensions(extensionList) {
     setupGroup(this);
   });
   domGroups.sortable({
+    axis: 'y',
     stop: function() {
       if(options.autosave) {
         save();
@@ -227,8 +234,13 @@ function setupGroup(group) {
         save();
       }
     }
-  }).find('ul').sortable({
-    revert: true,
+  });
+
+  var newGroupList = newGroup.find('ul');
+  newGroupList.sortable({
+    items: ':not(.placeholder)',
+    axis: 'y',
+    containment: newGroupList.parent().parent(),
     stop: function() {
       if(options.autosave) {
         save();
