@@ -108,7 +108,27 @@ function populateExtensions(extensionList) {
   var domList = $('#all_extensions');
   $.each(extensionList, function() {
     if(this.isApp) return;
-    var newItem = $('<li></li>').text(this.name).data('id', this.id);
+    var newItem = $('<li></li>').data('id', this.id);
+    var name = $('<div></div>').text(this.name);
+    var version = $('<span class="version"></span>').text(this.version);
+    if(!this.enabled) {
+      version.text(version.text() + ' (disabled)');
+    }
+    name.append(version);
+    var description = $('<div class="description"></div>').text(this.description);
+    console.log(this);
+    /*
+    // Extension icons only work for enabled extensions?!
+    var icons = this.icons;
+    if(icons && icons.length) {
+      for(var a = 0; a < icons.length; a++) {
+        var image = icons[0].url;
+        console.log('image ', image);
+        newItem.prepend($('<img width="16" height="16" />').attr('src', image));
+      }
+    }
+    */
+    newItem.append(name, description);
     domList.append(newItem);
     extensions[this.id] = this.name;
   });

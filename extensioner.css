@@ -60,6 +60,17 @@ ul {
   -webkit-box-shadow: -1px 1px 3px rgba(0,0,0,0.5);
 }
 
+.extension_list li .version {
+  font-size: 11px;
+  color: #666;
+  margin-left: 3px;
+}
+
+.extension_list li .description {
+  font-size: 11px;
+  color: #666;
+}
+
 #status {
   position: absolute;
   top: 0;
