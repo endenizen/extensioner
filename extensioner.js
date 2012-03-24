@@ -134,16 +134,10 @@ function populateExtensions(extensionList) {
     }
     firstLine.append(name, version);
     var description = $('<div class="description"></div>').text(this.description);
-    /*
-    // Extension icons only work for enabled extensions?!
     var icons = this.icons;
     if(icons && icons.length) {
-      for(var a = 0; a < icons.length; a++) {
-        var image = icons[0].url;
-        newItem.prepend($('<img width="16" height="16" />').attr('src', image));
-      }
+      newItem.prepend($('<img width="16" height="16" />').attr('src', icons[0].url));
     }
-    */
     newItem.append(firstLine, description);
     domList.append(newItem);
     extensions[this.id] = this.name;
@@ -211,7 +205,31 @@ function setupItem(item) {
 
 function setupGroup(group) {
   var newGroup = $('<div class="group_holder"></div>');
-  var name = $('<h2>' + group.name + '</h2>');
+  var name = $('<h2><span class="name">' + group.name + '</span></h2>');
+  var renameInput = $('<input type="text" />');
+  renameInput.keypress(function(e) {
+    if(e.keyCode == 13) {
+      renameSave.click();
+    }
+  });
+  var renameSave = $('<button>Save</button>');
+  renameSave.click(function() {
+    var newName = renameInput.val();
+    group.name = newName;
+    name.find('.name').text(newName);
+    newGroup.data('name', newName);
+    renameBox.hide();
+    name.show();
+    save();
+  });
+  var renameBox = $('<div></div>');
+  renameBox.append(renameInput);
+  renameBox.append(renameSave);
+  var editButton = $('<span class="edit">rename</span>').click(function() {
+    name.hide();
+    renameBox.show();
+    renameInput.val(group.name);
+  });
   var deleteButton = $('<span class="delete">X</span>').click(function() {
     var myName = $(this).parent().parent().data('name');
     if(confirm('Are you sure you want to delete the group "' + myName + '"?')) {
@@ -223,7 +241,9 @@ function setupGroup(group) {
       });
     }
   });
+  name.prepend(editButton);
   name.prepend(deleteButton);
+  newGroup.append(renameBox.hide());
   newGroup.append(name);
   newGroup.data('name', group.name);
   newGroup.attr('id', 'extensionerGroup' + group.name);
@@ -359,6 +379,57 @@ function setupOptionsPage() {
       $('#create_button').click();
     }
   });
+
+  $('#all_extensions').on('mouseenter', 'li', function() {
+    highlightGroupsForExtension($(this).data('id'));
+  }).on('mouseleave', 'li', function() {
+    unhighlightGroupsForExtension($(this).data('id'));
+  });
+
+  // make groups scroll with window
+  var groupHolder = $('#groups');
+  var origTop = groupHolder.offset().top;
+  var curTop = origTop;
+  $(window).bind('scroll', function(e) {
+    var st = $(this).scrollTop();
+    var newTop = Math.max(st - origTop, 0);
+    if(newTop != curTop) {
+      curTop = newTop;
+      groupHolder.stop();
+      groupHolder.animate({
+        top: curTop
+      }, 'fast');
+    }
+  });
+}
+
+function findGroupsForExtension(id) {
+  var found = [];
+  for(var g = 0; g < groups.length; g++) {
+    for(var e = 0; e < groups[g].extensions.length; e++) {
+      if(groups[g].extensions[e] == id) {
+        found.push(g);
+      }
+    }
+  }
+  return found;
+}
+
+function highlightGroupsForExtension(id) {
+  var g = findGroupsForExtension(id);
+  for(var i = 0; i < g.length; i++) {
+    var holder = $($('.group_holder')[g[i]]);
+    if(!holder.hasClass('highlighted')) {
+      holder.addClass('highlighted');
+    }
+  }
+}
+
+function unhighlightGroupsForExtension(id) {
+  var g = findGroupsForExtension(id);
+  for(var i = 0; i < g.length; i++) {
+    $($('.group_holder')[g[i]]).removeClass('highlighted');
+  }
 }
 
 function refreshFilter(str) {
