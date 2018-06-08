@@ -3,6 +3,9 @@ var extensions;
 var options;
 var extensionOrder;
 
+var pop_body=document.getElementById("pop_body");
+pop_body.addEventListener("onload",setupPopupPage());
+
 /* Return groups from localStorage or [] */
 function loadGroups() {
   var groupStorage = localStorage.extensionerGroups;
