@@ -2,19 +2,26 @@
   "name": "Extensioner",
   "version": "1.2",
   "description": "Extension management is easier with Extensioner.",
-  "browser_action": {
-    "default_icon": "puzzle_48.png",
-    "default_popup": "popup.html"
-  },
-  "options_page": "options.html",
-  "permissions": [
-    "management"
-  ],
+    
   "icons": {
     "16": "puzzle_16.png",
     "48": "puzzle_48.png",
     "128": "puzzle_128.png"
   },
+  "background": {
+    "page": "background.html"},
+
+  "options_page": "options.html",
+  "permissions": [
+    "management"
+  ],
+  "browser_action": {
+    "default_icon": {
+      "48": "puzzle_48.png"
+                    },
+    "default_popup": "popup.html"
+  },
   "omnibox": { "keyword" : "exr" },
-  "background_page": "background.html"
+
+  "manifest_version": 2
 }
