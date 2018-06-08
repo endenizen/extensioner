@@ -4,7 +4,11 @@ var options;
 var extensionOrder;
 
 var pop_body=document.getElementById("pop_body");
-pop_body.addEventListener("onload",setupPopupPage());
+if(pop_body !=null) pop_body.addEventListener("onload",setupPopupPage());
+
+var optionbody=document.getElementById("option_body");
+if(optionbody !=null) optionbody.addEventListener("onload",setupOptionsPage());
+
 
 /* Return groups from localStorage or [] */
 function loadGroups() {
